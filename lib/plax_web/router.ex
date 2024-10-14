@@ -17,7 +17,8 @@ defmodule PlaxWeb.Router do
   scope "/", PlaxWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/home", PageController, :home
+    live "/", ChatRoomLive
   end
 
   # Other scopes may use custom stacks.
