@@ -74,7 +74,7 @@ defmodule PlaxWeb.ChatRoomLive do
       :error -> List.first(socket.assigns.rooms)
     end
 
-    {:noreply, assign(socket, room: room)}
+    {:noreply, assign(socket, room: room, page_title: "#" <> room.name)}
   end
 
   def handle_event("toggle-topic", _, socket) do
