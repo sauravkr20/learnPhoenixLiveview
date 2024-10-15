@@ -1,8 +1,8 @@
 defmodule PlaxWeb.ChatRoomLive do
   use PlaxWeb, :live_view
 
+  alias Plax.Chat
   alias Plax.Chat.Room
-  alias Plax.Repo
 
   def render(assigns) do
     IO.puts("rendered")
@@ -62,7 +62,7 @@ defmodule PlaxWeb.ChatRoomLive do
 
   def mount(_params, _session, socket) do
     IO.puts("mounted")
-    rooms = Room |> Repo.all()
+    rooms = Chat.list_rooms()
 
     {:ok, assign(socket, hide_topic?: false, rooms: rooms)}
   end
@@ -70,7 +70,7 @@ defmodule PlaxWeb.ChatRoomLive do
   def handle_params(params, _session, socket) do
     IO.puts("handle_params #{inspect(params)} (connected #{connected?(socket)})")
     room = case Map.fetch(params, "id") do
-      {:ok, id} -> Repo.get!(Room, id)
+      {:ok, id} -> Chat.get_room!(id)
       :error -> List.first(socket.assigns.rooms)
     end
 
