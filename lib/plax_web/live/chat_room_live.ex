@@ -5,6 +5,8 @@ defmodule PlaxWeb.ChatRoomLive do
   alias Plax.Repo
 
   def render(assigns) do
+    IO.puts("rendered")
+
     ~H"""
       <div class="flex flex-col flex-shrink-0 bg-slate-100">
         <div class="flex justify-between items-center flex-shrink-0 h-16 border-b border-slate-300 px-4">
@@ -49,19 +51,30 @@ defmodule PlaxWeb.ChatRoomLive do
   attr :room, Room, required: true
   defp room_link(assigns) do
     ~H"""
-      <a class={["flex items-center h-8 px-3 group", (@active && "bg-slate-300") || "hover:bg-slate-300" ]}>
+      <.link patch={~p"/rooms/#{@room.id}"} class={["flex items-center h-8 px-3 group", (@active && "bg-slate-300") || "hover:bg-slate-300" ]}>
         <.icon name="hero-hashtag" class="h-4 w-4"/>
         <span class={["ml-2 leading-none", @active && "font-bold"]}>
           <%= @room.name %>
         </span>
-      </a>
+      </.link>
     """
   end
 
   def mount(_params, _session, socket) do
+    IO.puts("mounted")
     rooms = Room |> Repo.all()
-    room = rooms |> List.first()
-    {:ok, assign(socket, hide_topic?: false, room: room, rooms: rooms)}
+
+    {:ok, assign(socket, hide_topic?: false, rooms: rooms)}
+  end
+
+  def handle_params(params, _session, socket) do
+    IO.puts("handle_params #{inspect(params)} (connected #{connected?(socket)})")
+    room = case Map.fetch(params, "id") do
+      {:ok, id} -> Repo.get!(Room, id)
+      :error -> List.first(socket.assigns.rooms)
+    end
+
+    {:noreply, assign(socket, room: room)}
   end
 
   def handle_event("toggle-topic", _, socket) do
