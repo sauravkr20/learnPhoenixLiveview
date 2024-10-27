@@ -1,4 +1,5 @@
 defmodule Plax.Chat do
+  alias Plax.Chat.Message
   alias Plax.Chat.Room
   alias Plax.Repo
 
@@ -34,5 +35,12 @@ defmodule Plax.Chat do
 
   def change_room(room, attrs \\ %{}) do
     Room.changeset(room, attrs)
+  end
+
+  def list_all_messages_in_room(%Room{id: room_id})do
+    Message
+      |> where([m], m.room_id == ^room_id)
+      |> order_by([m], asc: :inserted_at, asc: :id)
+      |> Repo.all()
   end
 end
