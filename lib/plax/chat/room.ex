@@ -18,5 +18,6 @@ defmodule Plax.Chat.Room do
     |> validate_length(:name, max: 80)
     |> validate_format(:name, ~r/\A[a-z0-9-]+\z/)
     |> validate_length(:topic, max: 200)
+    |> unsafe_validate_unique(:name, Plax.Repo)
   end
 end
