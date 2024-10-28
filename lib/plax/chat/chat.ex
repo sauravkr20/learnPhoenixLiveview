@@ -40,7 +40,7 @@ defmodule Plax.Chat do
   def list_all_messages_in_room(%Room{id: room_id})do
     Message
       |> where([m], m.room_id == ^room_id)
-      |> order_by([m], asc: :inserted_at, asc: :id)
+      |> order_by(asc: :inserted_at)
       |> Repo.all()
   end
 end

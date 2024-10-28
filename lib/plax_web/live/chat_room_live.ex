@@ -48,7 +48,7 @@ defmodule PlaxWeb.ChatRoomLive do
           <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
             <%= if @current_user do %>
               <li class="text-[0.8125rem] leading-6 text-zinc-900">
-                <%= @current_user.email %>
+                <%= username(@current_user) %>
               </li>
               <li>
                 <.link
@@ -152,5 +152,9 @@ defmodule PlaxWeb.ChatRoomLive do
   def handle_event("toggle-topic", _, socket) do
     # {:noreply, assign(socket, hide_topic?: !socket.assigns.hide_topic?)}
     {:noreply, update(socket, :hide_topic?, &(!&1))}
+  end
+
+  defp username(user) do
+    user.email |> String.split("@") |> List.first() |> String.capitalize()
   end
 end

@@ -7,6 +7,8 @@ defmodule Plax.Chat.Room do
     field :text, :string
     field :topic, :string
 
+    has_many :messages, Message
+
     timestamps(type: :utc_datetime)
   end
 
