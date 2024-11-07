@@ -41,6 +41,7 @@ defmodule Plax.Chat do
     Message
       |> where([m], m.room_id == ^room_id)
       |> order_by(asc: :inserted_at)
+      |> preload(:user)
       |> Repo.all()
   end
 
