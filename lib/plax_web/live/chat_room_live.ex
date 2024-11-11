@@ -181,11 +181,15 @@ defmodule PlaxWeb.ChatRoomLive do
   end
 
   def handle_params(params, _session, socket) do
+    if socket.assigns[:room], do: Chat.unsubscribe_from_room(socket.assigns.room)
+
     IO.puts("handle_params #{inspect(params)} (connected #{connected?(socket)})")
     room = case Map.fetch(params, "id") do
       {:ok, id} -> Chat.get_room!(id)
       :error -> List.first(socket.assigns.rooms)
     end
+
+    Chat.subscribe_to_room(room)
 
     messages = Chat.list_all_messages_in_room(room)
 
@@ -206,9 +210,9 @@ defmodule PlaxWeb.ChatRoomLive do
   end
 
   def handle_event("delete-message", %{"id" => id}, socket) do
-    {:ok, message} = Chat.delete_message_by_id(id, socket.assigns.current_user)
+    Chat.delete_message_by_id(id, socket.assigns.current_user)
 
-    {:noreply, stream_delete(socket, :messages, message)}
+    {:noreply, socket}
   end
 
   def handle_event("validate-message", %{"message" => message_params}, socket) do
@@ -222,11 +226,8 @@ defmodule PlaxWeb.ChatRoomLive do
 
     socket =
       case Chat.create_message(room, message_params, current_user) do
-        {:ok, message} ->
-          socket
-          # |> update(:messages, &(&1 ++ [message]))
-          |> stream_insert(:messages, message)
-          |> assign_message_form(Chat.change_message(%Message{}))
+        {:ok, _message} ->
+          assign_message_form(socket, Chat.change_message(%Message{}))
         {:error, changeset} ->
           assign_message_form(socket, changeset)
       end
@@ -237,6 +238,15 @@ defmodule PlaxWeb.ChatRoomLive do
     # {:noreply, assign(socket, hide_topic?: !socket.assigns.hide_topic?)}
     {:noreply, update(socket, :hide_topic?, &(!&1))}
   end
+
+  def handle_info({:new_message, message}, socket) do
+    {:noreply, stream_insert(socket, :messages, message)}
+  end
+
+  def handle_info({:message_deleted, message}, socket) do
+    {:noreply, stream_delete(socket, :messages, message)}
+  end
+
 
   defp username(user) do
     user.email |> String.split("@") |> List.first() |> String.capitalize()
