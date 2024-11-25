@@ -17,6 +17,7 @@ defmodule Plax.Application do
       # Start a worker by calling: Plax.Worker.start_link(arg)
       # {Plax.Worker, arg},
       # Start to serve requests, typically the last entry
+      PlaxWeb.Presence,
       PlaxWeb.Endpoint
     ]
 
